@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/main.css">
+    <title>Feed</title>
+</head>
+<body>
+    <header>
+        <h1>News Feed</h1>
+        <button id="logout-btn">Logout</button>
+    </header>
+
+    <main>
+        <!-- Post Creation -->
+        <section class="create-post">
+            <textarea id="post-content" placeholder="What's on your mind?" rows="3"></textarea>
+            <button id="post-submit">Post</button>
+        </section>
+
+        <!-- Posts Container -->
+        <section class="posts-container">
+            <h2 class="section-title">Recent Posts</h2>
+            <div id="posts-list">
+                <!-- Posts will be dynamically inserted here by JavaScript -->
+                <!-- <div class="post">
+                    <div class="post-header">
+                        <span class="post-author">JohnDoe</span>
+                        <span class="post-date">2 hours ago</span>
+                    </div>
+                    <div class="post-content">
+                        <p>This is a sample post. Real posts will load from your backend!</p>
+                    </div>
+                    <div class="post-actions">
+                        <button class="edit-post">Edit</button>
+                        <button class="delete-post">Delete</button>
+                    </div> -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../scripts/posts.js"></script>
+</body>
+</html>
