@@ -4,7 +4,7 @@ const server = new Butter();
 
 const PORT = 8000;
 
-const SESSIONS = [];
+let SESSIONS = [];
 
 const USERS = [
     {id: 1, name: "Don Williams", username: "don23", password: "string"},
@@ -71,6 +71,10 @@ server.route('post', '/api/posts', (req, res)=>{
     req.on('end', ()=>{
         body = JSON.parse(body);
 
+        if (!body.body || !body.body.trim()) {
+                return res.status(400).json({ error: 'Post body is required' });
+            }
+
         const cookies = req.headers.cookie;
         if(!cookies || !cookies.includes('token=')){
             return res.status(401).json({error: "Unauthorized"})
@@ -97,7 +101,7 @@ server.route('post', '/api/posts', (req, res)=>{
     })
 })
 
-// Add this to your server.js
+
 server.route('get', '/api/posts', (req, res) => {
     try {
         // Add username to each post
@@ -105,7 +109,7 @@ server.route('get', '/api/posts', (req, res) => {
             const user = USERS.find(u => u.id === post.userID);
             return {
                 ...post,
-                username: user ? user.name : 'Unknown User'
+                username: user ? user.username : 'Unknown User'
             };
         });
         
@@ -115,6 +119,20 @@ server.route('get', '/api/posts', (req, res) => {
     }
 });
 
+server.route('post', '/api/logout', (req, res)=>{
+    const cookies = req.headers.cookie;
+    if(!cookies || !cookies.includes('token=')){
+        return res.status(401).json({error: 'Unauthorised'});
+    }
+    const token = cookies.split('=')[1];
+    SESSIONS = SESSIONS.filter((session)=> session.token !== token);
+    res.setHeader("SetCookie", `token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; HttpOnly`)
+    res.status(200).json({message: "Logout successful"});
+    console.log(SESSIONS);
+    console.log("User logged out");
+})
+
+server.route('delete', '/api/posts/:id', (req,res)=>{})
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

@@ -3,6 +3,26 @@ const postSubmit = document.getElementById('post-submit');
 const postsList = document.getElementById('posts-list');
 const logoutBtn = document.getElementById('logout-btn');
 
+const loadPosts = async () =>{
+    try {
+        const response = await fetch('/api/posts');
+        if(response.status === 200){
+            const posts = await response.json();
+            postsList.innerHTML = ''; // Clear existing posts
+            posts.forEach((post)=>addPostToDOM(post));
+        }else{
+            console.error('Failed to load posts');
+            const error = await response.json();
+            console.error('Error:', error.error);
+        }
+    } catch (error) {
+        console.error('Error loading posts:', error);
+        alert('Failed to load posts');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadPosts);
+
 
 postSubmit.addEventListener('click', async () =>{
     const content = postContent.value.trim();
@@ -38,6 +58,7 @@ postSubmit.addEventListener('click', async () =>{
 function addPostToDOM(post){
     const postElement = document.createElement('div')
     postElement.className = 'post';
+    postElement.dataset.postId = post.id;
     postElement.innerHTML = `
     <div class="post-header">
         <span class="post-author">${post.username}</span>
@@ -68,6 +89,21 @@ function formatDate(timestamp) {
     
     return date.toLocaleDateString();
 }
+
+document.addEventListener('click', async (e)=>{
+    if(e.target.id === 'logout-btn'){
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST',
+                credentials: 'include'
+            })
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('Failed to logout:', error);
+        }
+    }
+})
+
 
 
 
