@@ -4,6 +4,8 @@ const server = new Butter();
 
 const PORT = 8000;
 
+let nextPostId = 1; // Initialize nextPostId to 1
+
 let SESSIONS = [];
 
 const USERS = [
@@ -13,11 +15,11 @@ const USERS = [
 ];
 
 const POSTS = [
-    {
-        id: 1,
-        body: 'This is a sample post. Real posts will load from your backend!',
-        userID: 1,
-    }
+    // {
+    //     id: 1,
+    //     body: 'This is a sample post. Real posts will load from your backend!',
+    //     userID: 1,
+    // }
 ]
 
 server.route("get", "/login", (req,res)=>{
@@ -88,7 +90,7 @@ server.route('post', '/api/posts', (req, res)=>{
         if(session){
             const user = USERS.find((user)=>user.id === session.userId);
             const newPost = {
-                id: POSTS.length + 1,
+                id: nextPostId++,
                 body: body.body,
                 userID: user.id,
                 timestamp: new Date().toISOString(),
@@ -132,7 +134,39 @@ server.route('post', '/api/logout', (req, res)=>{
     console.log("User logged out");
 })
 
-server.route('delete', '/api/posts/:id', (req,res)=>{})
+server.route('delete', '/api/posts/:id', (req,res)=>{
+    const cookies = req.headers.cookie;
+    if(!cookies || !cookies.includes('token=')){
+        return res.status(401).json({error: 'Unauthorised'});
+    }
+    const token = cookies.split('=')[1];
+    const session = SESSIONS.find((session)=> session.token === token);
+    if(!session){
+        return res.status(401).json({error: 'Unauthorised'});
+    }
+
+    console.log('Raw req.params.id:', req.params.id);
+
+    const postId = parseInt(req.params.id);
+    console.log('Parsed postId:', postId);
+    console.log('Current POSTS:', POSTS.map(p => ({id: p.id, userID: p.userID})));
+    const postIndex = POSTS.findIndex(post => post.id === postId);
+    console.log('Post index found:', postIndex);
+    
+    if(postIndex === -1) {
+        console.log(`Post ${postId} not found in:`, POSTS);
+        return res.status(404).json({error: 'Post not found'});
+    }
+    
+    // Additional check for post ownership
+    if(POSTS[postIndex].userID !== session.userId) {
+        return res.status(403).json({error: 'Not authorized to delete this post'});
+        
+    }
+    
+    POSTS.splice(postIndex, 1);
+    res.status(200).json({message: 'Post deleted successfully'});
+});
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
