@@ -132,5 +132,56 @@ document.addEventListener('click', async (e)=>{
         console.error('Delete error:', error);
         alert('Failed to delete post');
     }
-}
+    }
+
+    if(e.target.classList.contains('edit-post')){
+        const postElement = e.target.closest('.post');
+        const postId = postElement.dataset.postId;
+        const contentDiv = postElement.querySelector('.post-content');
+        const textArea = document.createElement('textarea');
+        const oldTextArea = postElement.querySelector('post-content p');
+        textArea.value = oldTextArea?.textContent || '';
+
+        if(oldTextArea){
+            oldTextArea.replaceWith(textArea);
+        }else{
+            contentDiv.innerHTML = '';
+            contentDiv.appendChild(textArea);
+        }
+
+        e.target.textContent = 'Save';
+        e.target.classList.remove('edit-post');
+        e.target.classList.add('save-post');
+
+        if(e.target.classList.contains('save-post')){
+            const postElement = e.target.closest('.post')
+            const postId = postElement.dataset.postId;
+            const newContent = postElement.querySelector('textArea').value.trim()
+
+            if(!newContent){
+                alert('Please write something in the field');
+                return
+            }
+        }
+
+        try {
+            const response = await fetch(`/api/posts/${postId}`, {
+                method: 'PUT',
+                headers: {
+                    contentType: 'application/json',
+                },
+                body: JSON.stringify({body: newContent}),
+            })
+            if(response.status === 200){}
+        } catch (error) {
+            
+        }
+
+        // const saveButton = document.createElement('button');
+        // saveButton.textContent = 'Save';
+        // saveButton.className = 'save-post';
+        // postElement.querySelector('.post-actions').appendChild(saveButton);
+        
+    }
+
 })

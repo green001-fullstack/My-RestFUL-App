@@ -168,6 +168,51 @@ server.route('delete', '/api/posts/:id', (req,res)=>{
     res.status(200).json({message: 'Post deleted successfully'});
 });
 
+server.route('put', 'api/posts/:id', (req, res)=>{
+
+    let body = '';
+    req.on('data', (chunk)=>{
+        body += chunk.toString('utf-8')
+    })
+    req.on('end', ()=>{
+        body = JSON.parse(body);
+    })
+
+    if(!body.body || !body.body.trim()){
+        return res.status(400).json({error: 'Post body is required'});
+    }
+
+    const cookies = req.headers.cookies;
+    if(!cookies || !cookies.includes('token=')){
+        return res.status(401).json({error: 'Unauthorised'});
+    }
+    const token = cookies.split('=')[1];
+    const session = SESSIONS.find((session)=> session.token === token);
+    if(!session){
+        return res.status(401).json({error: 'Unauthorised'});
+    }
+
+    const postId = parseInt(req.params.id);
+    const post = POSTS.find((post)=> post.id === postId);
+    if(!post){
+        return res.status(404).json({error: 'Post not found'});
+    }
+
+    if(post.userID !== session.userId){
+        return res.status(403).json({error: 'Not authorised to edit this post'})
+    }
+
+    if(!body.body || !body.body.trim()){
+        return res.status(400).json({error: 'Post body is required'});
+    }
+
+    post.body = body.body;
+    post.timestamp = new Date().toISOString();
+
+    const user = USERS.find((user)=> user.id === post.userID);
+    res.status(200).json({...post, username: user ? user.username : 'Unknown User'});
+})
+
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
