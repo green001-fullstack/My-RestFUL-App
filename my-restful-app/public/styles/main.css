@@ -128,3 +128,35 @@ header{
     background-color: #e7f3ff;
     color: #1877f2;
 }
+
+.edit-textarea{
+    width: 100%;
+    min-height: 60px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    resize: vertical; /* Allows the user to resize vertically */
+    box-sizing: border-box;
+    outline: none;
+    margin-top: 5px;
+}
+
+.edit-textarea:focus {
+    border-color: #4CAF50; /* Green border when focused */
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.post-actions .save-post {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.post-actions .save-post:hover {
+    background-color: #45a049;
+}
